@@ -1,0 +1,1949 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DSA 4.1 Charakter Tool (offline)</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#121826;
+      --panel2:#0f1522;
+      --text:#e6edf7;
+      --muted:#a8b3c7;
+      --line:#23304a;
+      --accent:#7dd3fc;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --chip:#1b2740;
+      --chip2:#14203a;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --radius2:12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1200px 800px at 15% 0%, #10203a 0%, var(--bg) 55%) fixed;
+      color:var(--text);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background: rgba(11,15,20,.7);
+      backdrop-filter: blur(12px);
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:14px 16px}
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .brand{display:flex; gap:10px; align-items:center;}
+    .logo{
+      width:38px;height:38px;border-radius:12px;
+      background: linear-gradient(135deg, #38bdf8, #a78bfa);
+      box-shadow: var(--shadow);
+    }
+    .brand h1{font-size:14px; margin:0; letter-spacing:.2px;}
+    .brand .sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+    button, .btn{
+      background: linear-gradient(180deg, #1a2946, #14203a);
+      border:1px solid #233454;
+      color:var(--text);
+      padding:9px 11px;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,.25);
+      font-weight:600;
+      font-size:12px;
+      transition: transform .08s ease, border-color .12s ease, filter .12s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    button:hover{transform: translateY(-1px); border-color:#2d4677}
+    button:active{transform: translateY(0px); filter:brightness(.95)}
+    button.ghost{background: transparent; box-shadow:none;}
+    button.danger{
+      border-color:#5b2230;
+      background: linear-gradient(180deg, #3a1620, #1c0c10);
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(18,24,38,.6);
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .heroSelect{
+      background: rgba(9,13,20,.55);
+      border:1px solid #233454;
+      border-radius:12px;
+      color:var(--text);
+      padding:9px 10px;
+      font-weight:700;
+      font-size:12px;
+      max-width:260px;
+      min-width:180px;
+      outline:none;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 340px 1fr;
+      gap:14px;
+      padding:16px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns: 1fr} }
+    .card{
+      background: linear-gradient(180deg, rgba(18,24,38,.88), rgba(15,21,34,.88));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:12px 12px 10px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px;
+    }
+    .card .hd h2{margin:0;font-size:13px;letter-spacing:.2px;}
+    .card .bd{padding:12px}
+    .tabs{display:flex; gap:8px; flex-wrap:wrap;}
+    .tab{
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(18,24,38,.55);
+      color:var(--muted);
+      font-weight:700;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .tab.active{
+      color:#06101a;
+      border-color: transparent;
+      background: linear-gradient(135deg, #7dd3fc, #a78bfa);
+    }
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;}
+    input[type="text"], input[type="number"], textarea, select{
+      width:100%;
+      background: rgba(9,13,20,.7);
+      border:1px solid #22304a;
+      border-radius:12px;
+      color:var(--text);
+      padding:10px 10px;
+      outline:none;
+      font-size:13px;
+    }
+    textarea{min-height:160px; resize:vertical}
+    input[type="file"]{width:100%; color:var(--muted)}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+    .row4{display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px}
+    @media (max-width: 640px){ .row,.row3,.row4{grid-template-columns:1fr} }
+    .split{display:grid;grid-template-columns: 1fr 1fr;gap:12px;}
+    @media (max-width: 780px){.split{grid-template-columns:1fr}}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    .mini{font-family:var(--mono);font-size:12px;color:#cfe3ff;}
+    .muted{color:var(--muted)}
+    .kpi{display:flex; gap:10px; flex-wrap:wrap;}
+    .kpi .box{
+      flex:1;
+      min-width:150px;
+      background: rgba(9,13,20,.45);
+      border:1px solid #22304a;
+      border-radius:14px;
+      padding:10px;
+    }
+    .kpi .box .t{font-size:12px;color:var(--muted)}
+    .kpi .box .v{font-size:18px;font-weight:900;margin-top:2px}
+    .progress{
+      height:12px;
+      border-radius:999px;
+      border:1px solid #22304a;
+      background: rgba(9,13,20,.55);
+      overflow:hidden;
+    }
+    .bar{height:100%;width:0%;background: linear-gradient(90deg, var(--good), var(--accent));}
+    .bar.warn{background: linear-gradient(90deg, var(--warn), var(--accent))}
+    .bar.bad{background: linear-gradient(90deg, var(--bad), var(--warn))}
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border:1px solid #22304a;
+      border-radius:14px;
+      background: rgba(9,13,20,.35);
+    }
+    th, td{
+      border-bottom:1px solid #1e2a41;
+      padding:8px;
+      text-align:left;
+      font-size:12px;
+      vertical-align:middle;
+    }
+    th{color:#cfe3ff; font-weight:900; background: rgba(15,21,34,.65)}
+    tr:last-child td{border-bottom:none}
+    td input, td select, td textarea{
+      padding:7px 8px;
+      border-radius:10px;
+      font-size:12px;
+    }
+    .right{text-align:right}
+    .center{text-align:center}
+    .chiprow{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      background: linear-gradient(180deg, rgba(27,39,64,.9), rgba(20,32,58,.9));
+      border:1px solid #243556;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      color:#d9e6ff;
+      cursor:default;
+      max-width:100%;
+    }
+    .chip .x{
+      cursor:pointer;
+      width:18px;height:18px;border-radius:999px;
+      display:grid;place-items:center;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.12);
+      font-weight:900;
+      line-height:1;
+    }
+    .chip .x:hover{filter:brightness(1.1)}
+    .chip small{color:var(--muted); font-weight:700}
+    .portrait{display:flex; gap:12px; align-items:center;}
+    .portrait img{
+      width:84px;height:84px;border-radius:18px;
+      object-fit:cover;
+      border:1px solid #2a3f66;
+      background: rgba(9,13,20,.55);
+    }
+    .hint{font-size:12px;color:var(--muted);line-height:1.4}
+    .toast{
+      position:fixed; right:16px; bottom:16px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid #2a3f66;
+      background: rgba(18,24,38,.9);
+      box-shadow: var(--shadow);
+      color:#dbeafe;
+      font-weight:800;
+      font-size:12px;
+      opacity:0;
+      transform: translateY(8px);
+      transition: opacity .15s ease, transform .15s ease;
+      pointer-events:none;
+      max-width: min(560px, calc(100vw - 32px));
+      white-space:pre-wrap;
+    }
+    .toast.show{opacity:1; transform: translateY(0px)}
+    .flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .spacer{flex:1}
+    .smallbtn{padding:7px 9px;border-radius:10px;font-size:12px;box-shadow:none;}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>DSA 4.1 Charakter Tool</h1>
+          <div class="sub">Offline · Autosave · Tabs · Import/Export</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <span class="pill" id="currentHeroPill">Slot: <b id="currentHeroName">Unbenannt</b></span>
+
+        <select id="heroSelect" class="heroSelect" title="Gespeicherte Helden öffnen"></select>
+
+        <button id="btnSaveAs" title="Speichert diesen Helden unter einem neuen Namen (mehrere Helden parallel).">Speichern unter</button>
+        <button id="btnNew" class="ghost" title="Neuen leeren Helden starten (fragt nach Name).">Neu</button>
+
+        <button id="btnExport" class="ghost" title="Export als JSON-Datei (Backup / Teilen).">Export JSON</button>
+        <label class="btn ghost" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;">
+          Import JSON
+          <input id="fileImportJson" type="file" accept=".json,application/json" style="display:none;">
+        </label>
+
+        <label class="btn" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;" title="Heldensoftware-HTML importieren">
+          Import Heldensoftware HTML
+          <input id="fileImportHsHtml" type="file" accept=".html,text/html" style="display:none;">
+        </label>
+
+        <button id="btnReset" class="danger ghost" title="Löscht den aktuellen Helden aus dem Browser-Speicher.">Held löschen</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="grid">
+  <section class="card">
+    <div class="hd">
+      <h2>Navigation</h2>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="bd">
+      <div class="portrait">
+        <img id="portraitImg" alt="Portrait" />
+        <div style="flex:1">
+          <div class="row">
+            <div>
+              <label>Name</label>
+              <input id="fieldName" type="text" placeholder="z. B. Alrik" />
+            </div>
+            <div>
+              <label>Titel</label>
+              <input id="fieldTitle" type="text" placeholder="z. B. Junker, Magistra…" />
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <label>Portrait hochladen</label>
+            <input id="portraitUpload" type="file" accept="image/*" />
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="kpi">
+        <div class="box">
+          <div class="t">Lebenspunkte</div>
+          <div class="v"><span id="kpiLPcur">0</span>/<span id="kpiLPmax">0</span></div>
+          <div class="progress" title="LP">
+            <div class="bar" id="barLP"></div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label>Aktuell</label>
+              <input id="fieldLPcur" type="number" />
+            </div>
+            <div>
+              <label>Max</label>
+              <input id="fieldLPmax" type="number" />
+            </div>
+          </div>
+        </div>
+        <div class="box">
+          <div class="t">Ausdauer</div>
+          <div class="v"><span id="kpiAUcur">0</span>/<span id="kpiAUmax">0</span></div>
+          <div class="progress" title="AU">
+            <div class="bar" id="barAU"></div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label>Aktuell</label>
+              <input id="fieldAUcur" type="number" />
+            </div>
+            <div>
+              <label>Max</label>
+              <input id="fieldAUmax" type="number" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="card" style="box-shadow:none;border-radius:14px;border-color:#22304a;background:rgba(9,13,20,.25)">
+        <div class="hd" style="border-bottom:1px solid #22304a">
+          <h2>Würfler</h2>
+          <div class="muted" style="font-size:12px">W2–W20</div>
+        </div>
+        <div class="bd">
+          <div class="row3">
+            <div>
+              <label>Würfel</label>
+              <select id="diceSides">
+                <option value="2">W2</option>
+                <option value="4">W4</option>
+                <option value="6">W6</option>
+                <option value="8">W8</option>
+                <option value="10">W10</option>
+                <option value="12">W12</option>
+                <option value="20" selected>W20</option>
+              </select>
+            </div>
+            <div>
+              <label>Anzahl</label>
+              <input id="diceCount" type="number" value="1" min="1" max="50" />
+            </div>
+            <div>
+              <label>Modifikator</label>
+              <input id="diceMod" type="number" value="0" />
+            </div>
+          </div>
+          <div class="flex" style="margin-top:10px">
+            <button id="btnRoll">Würfeln</button>
+            <span class="pill">Ergebnis: <b id="diceResult">–</b></span>
+          </div>
+          <div class="hint" style="margin-top:10px">
+            Verlauf:
+            <div class="mini" id="diceLog" style="margin-top:6px;white-space:pre-wrap"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="hint">
+        <b>Autosave:</b> Alles wird automatisch im Browser gespeichert (localStorage).<br/>
+        <b>Mehrere Helden:</b> „Speichern unter“ legt zusätzliche Slots an · Dropdown öffnet gespeicherte Helden.
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="hd">
+      <h2 id="pageTitle">Übersicht</h2>
+      <div class="flex">
+        <span class="pill">Letztes Speichern: <b id="lastSaved">–</b></span>
+      </div>
+    </div>
+    <div class="bd">
+      <div id="page-overview" class="page"></div>
+      <div id="page-talents" class="page" style="display:none"></div>
+      <div id="page-combat" class="page" style="display:none"></div>
+      <div id="page-inventory" class="page" style="display:none"></div>
+      <div id="page-notes" class="page" style="display:none"></div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast">Gespeichert</div>
+
+<script>
+/* ===========================
+   DSA 4.1 Charakter Tool
+   - stabile Bindings (kein Re-Render bei jedem Tippen)
+   - debounced Autosave
+   - LP/AU dürfen 0 sein
+   - sichere Tooltips (desc)
+   - Helden-Dropdown
+   =========================== */
+
+const STORAGE_KEY = "dsa41_chars_v2";
+const CURRENT_KEY = "dsa41_current_hero_v2";
+
+const TAB_DEFS = [
+  { id:"overview",  label:"Übersicht" },
+  { id:"talents",   label:"Talente" },
+  { id:"combat",    label:"Kampfbrief" },
+  { id:"inventory", label:"Inventar" },
+  { id:"notes",     label:"Notizen" },
+];
+
+const TALENT_GROUPS = [
+  { key:"gesellschaft", label:"Gesellschaftstalente (B)" },
+  { key:"wissen",       label:"Wissenstalente (B)" },
+  { key:"natur",        label:"Naturtalente (B)" },
+  { key:"handwerk",     label:"Handwerkstalente (B)" },
+  { key:"koerper",      label:"Körperliche Talente (D)" },
+  { key:"kampf",        label:"Kampftalente (X)" },
+];
+
+let activeTab = "overview";
+
+function nowStamp(){
+  const d = new Date();
+  return d.toLocaleString("de-DE");
+}
+function uid(){
+  return Math.random().toString(16).slice(2) + Date.now().toString(16);
+}
+function dsaRound(x){
+  const n = Number(x);
+  if (!isFinite(n)) return 0;
+  return Math.floor(n + 0.5);
+}
+function clamp(n,min,max){
+  n = Number(n);
+  if (!isFinite(n)) n = min;
+  return Math.max(min, Math.min(max, n));
+}
+function isUnset(v){
+  return v === null || v === undefined || v === "";
+}
+
+function emptyState(name="Unbenannt"){
+  return {
+    meta:{ heroName: name, title: "", portraitDataUrl: "", lastSaved: "" },
+    attrs:{ MU: 8, KL: 8, IN: 8, CH: 8, FF: 8, GE: 8, KO: 8, KK: 8, SO: 0, GS: 8 },
+    base:{
+      LP_mod: 0, AU_mod: 0, AE_mod: 0, MR_mod: 0, INI_mod: 0, B_AT_mod: 0, B_PA_mod: 0, B_FK_mod: 0,
+      LP_cur: null, LP_max: null, LP_max_auto: true,
+      AU_cur: null, AU_max: null, AU_max_auto: true,
+      AE: 0, MR: 0, INI: 0, B_AT: 0, B_PA: 0, B_FK: 0
+    },
+    combatValues:{ AT: 0, AT_mod: 0, PA: 0, PA_mod: 0, FK: 0, FK_mod: 0, INI: null, INI_mod: 0, MR: null, MR_mod: 0 },
+    advantages: [],
+    disadvantages: [],
+    specialSkills: [],
+    combatTechniques: [],
+    karma:{ KP_cur: 0, KP_max: 0 },
+    talents: { gesellschaft: [], wissen: [], natur: [], handwerk: [], koerper: [], kampf: [] },
+    weapons: [],
+    armor: [],
+    inventory:{ money: "", items: [] },
+    notes:{ general: "" }
+  };
+}
+
+/* ------- Storage ------- */
+function loadAll(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") || {}; }
+  catch(e){ return {}; }
+}
+function saveAll(map){ localStorage.setItem(STORAGE_KEY, JSON.stringify(map)); }
+function getCurrentHeroKey(){ return localStorage.getItem(CURRENT_KEY) || ""; }
+function setCurrentHeroKey(key){ localStorage.setItem(CURRENT_KEY, key); }
+
+function ensureHeroExists(key){
+  const all = loadAll();
+  if(!all[key]){ all[key] = emptyState(key); saveAll(all); }
+  return all[key];
+}
+function listHeroKeys(){
+  const all = loadAll();
+  return Object.keys(all).sort((a,b)=>a.localeCompare(b, "de"));
+}
+
+function showToast(msg="Gespeichert"){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 1000);
+}
+
+/* Debounced autosave (ohne dauerndes Neurendern) */
+let saveTimer = null;
+function persistState({toast=false}={}){
+  const all = loadAll();
+  state.meta.lastSaved = nowStamp();
+  all[currentKey] = state;
+  saveAll(all);
+  document.getElementById("lastSaved").textContent = state.meta.lastSaved;
+  if(toast) showToast("Gespeichert");
+  refreshHeroSelect(); // falls Slots neu/gelöscht/umbenannt wurden
+}
+function schedulePersist(){
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>persistState({toast:false}), 250);
+}
+
+/* ------- State ------- */
+let currentKey = getCurrentHeroKey() || "Unbenannt";
+let state = ensureHeroExists(currentKey);
+
+/* ------- Calculations ------- */
+function calcLPBase(){ const A=state.attrs; return dsaRound((A.KO+A.KO+A.KK)/2); }
+function calcAUBase(){ const A=state.attrs; return dsaRound((A.MU+A.KO+A.GE)/2); }
+function calcAEBase(){ const A=state.attrs; return dsaRound((A.MU+A.IN+A.CH)/2); }
+function calcMRBase(){ const A=state.attrs; return dsaRound((A.MU+A.KL+A.KO)/5); }
+function calcINIBase(){ const A=state.attrs; return dsaRound((A.MU+A.MU+A.IN+A.GE)/5); }
+function calcBATBase(){ const A=state.attrs; return dsaRound((A.MU+A.GE+A.KK)/5); }
+function calcBPABase(){ const A=state.attrs; return dsaRound((A.IN+A.GE+A.KK)/5); }
+function calcBFKBase(){ const A=state.attrs; return dsaRound((A.IN+A.FF+A.KK)/5); }
+
+function calcDerivedBase(){
+  const A = state.attrs;
+
+  const LP_base = calcLPBase();
+  const AU_base = calcAUBase();
+  const AE_base = calcAEBase();
+  const MR_base = calcMRBase();
+  const INI_base = calcINIBase();
+  const BAT_base = calcBATBase();
+  const BPA_base = calcBPABase();
+  const BFK_base = calcBFKBase();
+
+  const LP_final = LP_base + Number(state.base.LP_mod||0);
+  const AU_final = AU_base + Number(state.base.AU_mod||0);
+
+  state.base.AE   = AE_base  + Number(state.base.AE_mod||0);
+  state.base.MR   = MR_base  + Number(state.base.MR_mod||0);
+  state.base.INI  = INI_base + Number(state.base.INI_mod||0);
+  state.base.B_AT = BAT_base + Number(state.base.B_AT_mod||0);
+  state.base.B_PA = BPA_base + Number(state.base.B_PA_mod||0);
+  state.base.B_FK = BFK_base + Number(state.base.B_FK_mod||0);
+
+  // Auto-Max (wenn nie manuell überschrieben)
+  if(state.base.LP_max_auto || !isFinite(Number(state.base.LP_max)) || Number(state.base.LP_max) <= 0){
+    state.base.LP_max = LP_final;
+    state.base.LP_max_auto = true;
+  }
+  if(state.base.AU_max_auto || !isFinite(Number(state.base.AU_max)) || Number(state.base.AU_max) <= 0){
+    state.base.AU_max = AU_final;
+    state.base.AU_max_auto = true;
+  }
+
+  // Cur defaults (nur wenn wirklich unset, 0 ist erlaubt!)
+  if(isUnset(state.base.LP_cur) || !isFinite(Number(state.base.LP_cur))){
+    state.base.LP_cur = Number(state.base.LP_max||0);
+  }
+  if(isUnset(state.base.AU_cur) || !isFinite(Number(state.base.AU_cur))){
+    state.base.AU_cur = Number(state.base.AU_max||0);
+  }
+
+  // clamp current to max (aber 0 bleibt 0)
+  state.base.LP_cur = clamp(state.base.LP_cur, 0, Number(state.base.LP_max||0));
+  state.base.AU_cur = clamp(state.base.AU_cur, 0, Number(state.base.AU_max||0));
+
+  // combat defaults (nur wenn unset)
+  if(isUnset(state.combatValues.INI)) state.combatValues.INI = state.base.INI;
+  if(isUnset(state.combatValues.MR))  state.combatValues.MR  = state.base.MR;
+}
+
+/* ------- Rendering helpers ------- */
+function escapeHtml(s){
+  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
+function escapeAttr(s){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
+function getByPath(obj, path){
+  const parts = path.split(".");
+  let cur = obj;
+  for(const p of parts){ if(cur == null) return undefined; cur = cur[p]; }
+  return cur;
+}
+function setByPath(obj, path, value){
+  const parts = path.split(".");
+  let cur = obj;
+  for(let i=0;i<parts.length-1;i++){
+    const p = parts[i];
+    if(cur[p] == null) cur[p] = {};
+    cur = cur[p];
+  }
+  cur[parts[parts.length-1]] = value;
+}
+
+function rowBase(id, name, formula, baseVal, modKey, finalVal){
+  return `
+    <tr>
+      <td><b>${name}</b><div class="muted" style="font-size:11px">${formula}</div></td>
+      <td class="right"><span class="mini" data-dval="${id}_base">${baseVal}</span></td>
+      <td class="right">
+        <input type="number" style="max-width:120px; text-align:right"
+               data-bind="base.${modKey}" value="${Number(state.base[modKey]||0)}" />
+      </td>
+      <td class="right"><span class="mini" data-dval="${id}_final">${finalVal}</span></td>
+    </tr>
+  `;
+}
+function rowCombat(label, bindVal, bindMod){
+  const v = Number(getByPath(state, bindVal)||0);
+  const m = Number(getByPath(state, bindMod)||0);
+  const fin = v + m;
+  return `
+    <tr>
+      <td><b>${label}</b></td>
+      <td class="right"><input type="number" style="max-width:120px;text-align:right" data-bind="${bindVal}" value="${v}"></td>
+      <td class="right"><input type="number" style="max-width:120px;text-align:right" data-bind="${bindMod}" value="${m}"></td>
+      <td class="right"><span class="mini" data-cfinal="${bindVal}|${bindMod}">${fin}</span></td>
+    </tr>
+  `;
+}
+
+function renderChipList(key){
+  const arr = state[key] || [];
+  if(!arr.length) return `<span class="muted">– leer –</span>`;
+  return arr.map(x=>{
+    const title = x.desc ? escapeAttr(x.desc) : "Keine Beschreibung (klicken zum Bearbeiten)";
+    return `
+      <span class="chip" data-action="edit-chip" data-target="${key}" data-id="${x.id}" title="${title}">
+        ${escapeHtml(x.name || "—")}
+        <small>ⓘ</small>
+        <span class="x" data-action="remove-chip" data-target="${key}" data-id="${x.id}" title="Entfernen">×</span>
+      </span>
+    `;
+  }).join("");
+}
+function renderChipSection(title, key){
+  return `
+    <div class="card" style="box-shadow:none">
+      <div class="hd">
+        <h2>${title}</h2>
+        <button class="smallbtn" data-action="add-chip" data-target="${key}">+ hinzufügen</button>
+      </div>
+      <div class="bd">
+        ${renderChipList(key)}
+      </div>
+    </div>
+  `;
+}
+function renderChipSectionInner(key){
+  return `
+    <div class="chiprow">
+      ${renderChipList(key)}
+      <button class="smallbtn" data-action="add-chip" data-target="${key}">+ hinzufügen</button>
+    </div>
+  `;
+}
+
+function miniKpi(label, dkey, value){
+  return `<div class="box"><div class="t">${label}</div><div class="v"><span data-dval="${dkey}">${escapeHtml(String(value))}</span></div></div>`;
+}
+
+/* ------- Pages ------- */
+function renderTalentGroup(g){
+  const list = state.talents[g.key] || [];
+  return `
+    <div class="card" style="box-shadow:none; margin-bottom:12px">
+      <div class="hd">
+        <h2>${g.label}</h2>
+        <button class="smallbtn" data-action="add-talent" data-group="${g.key}">+ Talent</button>
+      </div>
+      <div class="bd">
+        <table data-talent-table="${g.key}">
+          <thead>
+            <tr>
+              <th style="width:26%">Talent</th>
+              <th style="width:22%">Probe (optional)</th>
+              <th style="width:16%">BE (optional)</th>
+              <th class="right" style="width:12%">TaW</th>
+              <th style="width:18%">Notiz</th>
+              <th class="center" style="width:6%">✕</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.length ? list.map(t=>`
+              <tr data-id="${t.id}">
+                <td><input type="text" value="${escapeAttr(t.name||"")}" data-field="name"></td>
+                <td><input type="text" value="${escapeAttr(t.probe||"")}" data-field="probe" placeholder="z. B. (MU/IN/CH)"></td>
+                <td><input type="text" value="${escapeAttr(t.be||"")}" data-field="be" placeholder="z. B. BE-1"></td>
+                <td class="right"><input type="number" value="${Number(t.taw||0)}" data-field="taw" style="text-align:right"></td>
+                <td><input type="text" value="${escapeAttr(t.notes||"")}" data-field="notes"></td>
+                <td class="center"><button class="smallbtn danger" data-action="talent-remove" title="Löschen">×</button></td>
+              </tr>
+            `).join("") : `<tr><td colspan="6" class="muted">– leer –</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderWeaponsTable(){
+  const list = state.weapons || [];
+  return `
+    <table data-weapon-table="1">
+      <thead>
+        <tr>
+          <th>Art</th><th>Name</th><th>Typ/DK</th><th>TP</th><th>TP/KK</th>
+          <th class="right">Ini</th><th>WM</th>
+          <th class="right">AT</th><th class="right">PA</th><th class="right">BF</th>
+          <th>Notiz</th><th class="center">Aktiv</th><th class="center">✕</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${list.length ? list.map(w=>`
+          <tr data-id="${w.id}">
+            <td>
+              <select data-action="weapon-edit" data-field="isRanged">
+                <option value="false" ${w.isRanged? "":"selected"}>NK</option>
+                <option value="true" ${w.isRanged? "selected":""}>FK</option>
+              </select>
+            </td>
+            <td><input type="text" value="${escapeAttr(w.name||"")}" data-action="weapon-edit" data-field="name"></td>
+            <td><input type="text" value="${escapeAttr(w.typdk||"")}" data-action="weapon-edit" data-field="typdk"></td>
+            <td><input type="text" value="${escapeAttr(w.tp||"")}" data-action="weapon-edit" data-field="tp"></td>
+            <td><input type="text" value="${escapeAttr(w.tpkk||"")}" data-action="weapon-edit" data-field="tpkk"></td>
+            <td class="right"><input type="number" value="${Number(w.ini||0)}" data-action="weapon-edit" data-field="ini" style="text-align:right"></td>
+            <td><input type="text" value="${escapeAttr(w.wm||"")}" data-action="weapon-edit" data-field="wm" placeholder="z. B. +1/-1"></td>
+            <td class="right"><input type="number" value="${Number(w.at||0)}" data-action="weapon-edit" data-field="at" style="text-align:right"></td>
+            <td class="right"><input type="number" value="${Number(w.pa||0)}" data-action="weapon-edit" data-field="pa" style="text-align:right"></td>
+            <td class="right"><input type="number" value="${Number(w.bf||0)}" data-action="weapon-edit" data-field="bf" style="text-align:right"></td>
+            <td><input type="text" value="${escapeAttr(w.notes||"")}" data-action="weapon-edit" data-field="notes"></td>
+            <td class="center"><input type="checkbox" ${w.equipped? "checked":""} data-action="weapon-toggle" data-field="equipped"></td>
+            <td class="center"><button class="smallbtn danger" data-action="weapon-remove">×</button></td>
+          </tr>
+        `).join("") : `<tr><td colspan="13" class="muted">– keine Waffen –</td></tr>`}
+      </tbody>
+    </table>
+  `;
+}
+function renderArmorTable(){
+  const list = state.armor || [];
+  return `
+    <table data-armor-table="1">
+      <thead>
+        <tr><th>Name</th><th class="right">RS</th><th class="right">BE</th><th>Notiz</th><th class="center">Aktiv</th><th class="center">✕</th></tr>
+      </thead>
+      <tbody>
+        ${list.length ? list.map(a=>`
+          <tr data-id="${a.id}">
+            <td><input type="text" value="${escapeAttr(a.name||"")}" data-action="armor-edit" data-field="name"></td>
+            <td class="right"><input type="number" value="${Number(a.rs||0)}" data-action="armor-edit" data-field="rs" style="text-align:right"></td>
+            <td class="right"><input type="number" value="${Number(a.be||0)}" data-action="armor-edit" data-field="be" style="text-align:right"></td>
+            <td><input type="text" value="${escapeAttr(a.notes||"")}" data-action="armor-edit" data-field="notes"></td>
+            <td class="center"><input type="checkbox" ${a.equipped? "checked":""} data-action="armor-toggle" data-field="equipped"></td>
+            <td class="center"><button class="smallbtn danger" data-action="armor-remove">×</button></td>
+          </tr>
+        `).join("") : `<tr><td colspan="6" class="muted">– keine Rüstungen –</td></tr>`}
+      </tbody>
+    </table>
+  `;
+}
+function renderItemsTable(){
+  const list = state.inventory.items || [];
+  return `
+    <table data-items-table="1">
+      <thead>
+        <tr><th>Name</th><th class="right">Menge</th><th class="right">Gewicht</th><th>Notiz</th><th class="center">✕</th></tr>
+      </thead>
+      <tbody>
+        ${list.length ? list.map(it=>`
+          <tr data-id="${it.id}">
+            <td><input type="text" value="${escapeAttr(it.name||"")}" data-action="item-edit" data-field="name"></td>
+            <td class="right"><input type="number" value="${Number(it.amount||0)}" data-action="item-edit" data-field="amount" style="text-align:right"></td>
+            <td class="right"><input type="number" value="${Number(it.weight||0)}" data-action="item-edit" data-field="weight" style="text-align:right"></td>
+            <td><input type="text" value="${escapeAttr(it.notes||"")}" data-action="item-edit" data-field="notes"></td>
+            <td class="center"><button class="smallbtn danger" data-action="item-remove">×</button></td>
+          </tr>
+        `).join("") : `<tr><td colspan="5" class="muted">– leer –</td></tr>`}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderOverview(){
+  const el = document.getElementById("page-overview");
+  const A = state.attrs;
+
+  el.innerHTML = `
+    <div class="split">
+      <div class="card" style="box-shadow:none">
+        <div class="hd"><h2>Eigenschaften</h2></div>
+        <div class="bd">
+          <div class="row4">
+            ${["MU","KL","IN","CH","FF","GE","KO","KK"].map(k=>`
+              <div>
+                <label>${k}</label>
+                <input type="number" data-bind="attrs.${k}" value="${A[k]}" />
+              </div>
+            `).join("")}
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div>
+              <label>Sozialstatus (SO)</label>
+              <input type="number" data-bind="attrs.SO" value="${A.SO}" />
+            </div>
+            <div>
+              <label>Geschwindigkeit (GS)</label>
+              <input type="number" data-bind="attrs.GS" value="${A.GS}" />
+            </div>
+          </div>
+          <div class="hint" style="margin-top:10px">
+            Änderungen hier aktualisieren automatisch alle Basiswerte, die Talente-Ansicht und den Kampfbrief.
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="box-shadow:none">
+        <div class="hd"><h2>Basiswerte (Formeln + Modifikatoren)</h2></div>
+        <div class="bd">
+          <table>
+            <thead>
+              <tr><th>Wert</th><th class="right">Basis</th><th class="right">Mod</th><th class="right">Final</th></tr>
+            </thead>
+            <tbody>
+              ${rowBase("LP","Lebenspunkte","(KO+KO+KK)/2", calcLPBase(), "LP_mod", (calcLPBase()+Number(state.base.LP_mod||0)))}
+              ${rowBase("AU","Ausdauer","(MU+KO+GE)/2", calcAUBase(), "AU_mod", (calcAUBase()+Number(state.base.AU_mod||0)))}
+              ${rowBase("AE","Astralenergie","(MU+IN+CH)/2", calcAEBase(), "AE_mod", state.base.AE)}
+              ${rowBase("MR","Magieresistenz","(MU+KL+KO)/5", calcMRBase(), "MR_mod", state.base.MR)}
+              ${rowBase("INI","Initiative","(MU+MU+IN+GE)/5", calcINIBase(), "INI_mod", state.base.INI)}
+              ${rowBase("BAT","Angriff (Basis)","(MU+GE+KK)/5", calcBATBase(), "B_AT_mod", state.base.B_AT)}
+              ${rowBase("BPA","Parade (Basis)","(IN+GE+KK)/5", calcBPABase(), "B_PA_mod", state.base.B_PA)}
+              ${rowBase("BFK","Fernkampf (Basis)","(IN+FF+KK)/5", calcBFKBase(), "B_FK_mod", state.base.B_FK)}
+            </tbody>
+          </table>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <label>Karmapunkte (aktuell)</label>
+              <input type="number" data-bind="karma.KP_cur" value="${state.karma.KP_cur}" />
+            </div>
+            <div>
+              <label>Karmapunkte (max)</label>
+              <input type="number" data-bind="karma.KP_max" value="${state.karma.KP_max}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="split">
+      ${renderChipSection("Vorteile", "advantages")}
+      ${renderChipSection("Nachteile", "disadvantages")}
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="card" style="box-shadow:none">
+      <div class="hd"><h2>Sonderfertigkeiten</h2></div>
+      <div class="bd">
+        ${renderChipSectionInner("specialSkills")}
+      </div>
+    </div>
+  `;
+  bindInputs(el);
+  bindChipActions(el);
+}
+
+function renderTalents(){
+  const el = document.getElementById("page-talents");
+  const A = state.attrs;
+
+  el.innerHTML = `
+    <div class="card" style="box-shadow:none">
+      <div class="hd">
+        <h2>Eigenschaften (sichtbar im Talent-Tab)</h2>
+        <span class="pill">SO: <b data-dval="SO">${A.SO}</b> · GS: <b data-dval="GS">${A.GS}</b></span>
+      </div>
+      <div class="bd">
+        <div class="row4">
+          ${["MU","KL","IN","CH","FF","GE","KO","KK"].map(k=>`
+            <div>
+              <label>${k}</label>
+              <input type="number" data-bind="attrs.${k}" value="${A[k]}" />
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    ${TALENT_GROUPS.map(g=>renderTalentGroup(g)).join("")}
+
+    <div class="hint" style="margin-top:12px">
+      Talente sind vollständig editierbar (Name + TaW + Probe/Notiz). Änderungen werden gespeichert, ohne dass Felder springen.
+    </div>
+  `;
+  bindInputs(el);
+  bindTalentTableActions(el);
+}
+
+function renderCombat(){
+  const el = document.getElementById("page-combat");
+  el.innerHTML = `
+    <div class="split">
+      <div class="card" style="box-shadow:none">
+        <div class="hd"><h2>Kampfwerte</h2></div>
+        <div class="bd">
+          <table>
+            <thead>
+              <tr><th>Wert</th><th class="right">Wert</th><th class="right">Mod</th><th class="right">Final</th></tr>
+            </thead>
+            <tbody>
+              ${rowCombat("AT", "combatValues.AT", "combatValues.AT_mod")}
+              ${rowCombat("PA", "combatValues.PA", "combatValues.PA_mod")}
+              ${rowCombat("FK", "combatValues.FK", "combatValues.FK_mod")}
+              ${rowCombat("INI", "combatValues.INI", "combatValues.INI_mod")}
+              ${rowCombat("MR", "combatValues.MR", "combatValues.MR_mod")}
+            </tbody>
+          </table>
+
+          <div class="hr"></div>
+
+          <div class="card" style="box-shadow:none;border-radius:14px;border-color:#22304a;background:rgba(9,13,20,.22)">
+            <div class="hd" style="border-bottom:1px solid #22304a">
+              <h2>Kampftechniken (als Sonderfertigkeiten)</h2>
+              <button class="smallbtn" data-action="add-chip" data-target="combatTechniques">+ hinzufügen</button>
+            </div>
+            <div class="bd">
+              ${renderChipSectionInner("combatTechniques")}
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:10px">
+            Beim Heldensoftware-Import werden Kampftechniken (Dolche usw.) hier als Chips übernommen.
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="box-shadow:none">
+        <div class="hd"><h2>Basiswerte (Referenz)</h2></div>
+        <div class="bd">
+          <div class="kpi">
+            ${miniKpi("LP", "LP_pair", `${state.base.LP_cur}/${state.base.LP_max}`)}
+            ${miniKpi("AU", "AU_pair", `${state.base.AU_cur}/${state.base.AU_max}`)}
+            ${miniKpi("AE", "AE_final", state.base.AE)}
+            ${miniKpi("MR", "MR_final", state.base.MR)}
+            ${miniKpi("INI", "INI_final", state.base.INI)}
+            ${miniKpi("B-AT", "BAT_final", state.base.B_AT)}
+            ${miniKpi("B-PA", "BPA_final", state.base.B_PA)}
+            ${miniKpi("B-FK", "BFK_final", state.base.B_FK)}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="card" style="box-shadow:none">
+      <div class="hd">
+        <h2>Waffen</h2>
+        <div class="flex">
+          <button class="smallbtn" data-action="add-weapon" data-kind="melee">+ Nahkampf</button>
+          <button class="smallbtn" data-action="add-weapon" data-kind="ranged">+ Fernkampf</button>
+        </div>
+      </div>
+      <div class="bd">${renderWeaponsTable()}</div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="card" style="box-shadow:none">
+      <div class="hd">
+        <h2>Rüstungen</h2>
+        <button class="smallbtn" data-action="add-armor">+ hinzufügen</button>
+      </div>
+      <div class="bd">${renderArmorTable()}</div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="card" style="box-shadow:none">
+      <div class="hd"><h2>Sonderfertigkeiten (Kampf / allgemein)</h2></div>
+      <div class="bd">
+        ${renderChipSectionInner("specialSkills")}
+        <div style="margin-top:10px" class="hint">
+          Sonderfertigkeiten sind global (sie erscheinen auch in der Übersicht).
+        </div>
+      </div>
+    </div>
+  `;
+  bindInputs(el);
+  bindChipActions(el);
+  bindCombatTables(el);
+}
+
+function renderInventory(){
+  const el = document.getElementById("page-inventory");
+  el.innerHTML = `
+    <div class="split">
+      <div class="card" style="box-shadow:none">
+        <div class="hd"><h2>Geld / Vermögen</h2></div>
+        <div class="bd">
+          <label>Notiz (z. B. Dukaten / Silber / Heller / Kreuzer)</label>
+          <textarea data-bind="inventory.money" placeholder="z. B. 12 D, 8 S, 3 H…">${escapeHtml(state.inventory.money||"")}</textarea>
+        </div>
+      </div>
+
+      <div class="card" style="box-shadow:none">
+        <div class="hd">
+          <h2>Inventar-Liste</h2>
+          <button class="smallbtn" data-action="add-item">+ hinzufügen</button>
+        </div>
+        <div class="bd">${renderItemsTable()}</div>
+      </div>
+    </div>
+  `;
+  bindInputs(el);
+  bindInventoryTableActions(el);
+}
+
+function renderNotes(){
+  const el = document.getElementById("page-notes");
+  el.innerHTML = `
+    <div class="card" style="box-shadow:none">
+      <div class="hd"><h2>Notizen</h2></div>
+      <div class="bd">
+        <label>Allgemeine Notizen</label>
+        <textarea data-bind="notes.general" placeholder="Alles was du willst…">${escapeHtml(state.notes.general||"")}</textarea>
+      </div>
+    </div>
+  `;
+  bindInputs(el);
+}
+
+function renderPages(){
+  renderOverview();
+  renderTalents();
+  renderCombat();
+  renderInventory();
+  renderNotes();
+  syncDerivedDisplays(); // nach initialem Render direkt syncen
+}
+
+/* ------- Tabs / Header / KPI ------- */
+function buildTabs(){
+  const tabsEl = document.getElementById("tabs");
+  tabsEl.innerHTML = "";
+  TAB_DEFS.forEach(t=>{
+    const b = document.createElement("div");
+    b.className = "tab";
+    b.textContent = t.label;
+    b.dataset.tab = t.id;
+    b.onclick = ()=>setTab(t.id);
+    tabsEl.appendChild(b);
+  });
+}
+function setTab(id){
+  activeTab = id;
+  TAB_DEFS.forEach(t=>{
+    const is = (t.id === id);
+    const tabEl = document.querySelector(`.tab[data-tab="${t.id}"]`);
+    if(tabEl) tabEl.classList.toggle("active", is);
+    const page = document.getElementById(`page-${t.id}`);
+    if(page) page.style.display = is ? "" : "none";
+  });
+  document.getElementById("pageTitle").textContent = TAB_DEFS.find(x=>x.id===id)?.label || "—";
+  // kein vollständiges re-render nötig
+}
+
+function renderHeader(){
+  document.getElementById("currentHeroName").textContent = currentKey;
+  const nm = document.getElementById("fieldName");
+  const tl = document.getElementById("fieldTitle");
+  if(document.activeElement !== nm) nm.value = state.meta.heroName || "";
+  if(document.activeElement !== tl) tl.value = state.meta.title || "";
+
+  const img = document.getElementById("portraitImg");
+  img.src = state.meta.portraitDataUrl || "";
+  img.style.opacity = state.meta.portraitDataUrl ? "1" : "0.35";
+  document.getElementById("lastSaved").textContent = state.meta.lastSaved || "–";
+}
+
+function renderKpis(){
+  const LPmax = Number(state.base.LP_max||0);
+  const LPcur = Number(state.base.LP_cur||0);
+  const AUmax = Number(state.base.AU_max||0);
+  const AUcur = Number(state.base.AU_cur||0);
+
+  document.getElementById("kpiLPmax").textContent = LPmax;
+  document.getElementById("kpiLPcur").textContent = LPcur;
+  document.getElementById("kpiAUmax").textContent = AUmax;
+  document.getElementById("kpiAUcur").textContent = AUcur;
+
+  const lpPct = LPmax>0 ? clamp((LPcur/LPmax)*100,0,100) : 0;
+  const auPct = AUmax>0 ? clamp((AUcur/AUmax)*100,0,100) : 0;
+
+  const barLP = document.getElementById("barLP");
+  barLP.style.width = lpPct + "%";
+  barLP.classList.toggle("warn", lpPct<60 && lpPct>=25);
+  barLP.classList.toggle("bad", lpPct<25);
+
+  const barAU = document.getElementById("barAU");
+  barAU.style.width = auPct + "%";
+  barAU.classList.toggle("warn", auPct<60 && auPct>=25);
+  barAU.classList.toggle("bad", auPct<25);
+
+  const lpCur = document.getElementById("fieldLPcur");
+  const lpMax = document.getElementById("fieldLPmax");
+  const auCur = document.getElementById("fieldAUcur");
+  const auMax = document.getElementById("fieldAUmax");
+
+  if(document.activeElement !== lpCur) lpCur.value = LPcur;
+  if(document.activeElement !== lpMax) lpMax.value = LPmax;
+  if(document.activeElement !== auCur) auCur.value = AUcur;
+  if(document.activeElement !== auMax) auMax.value = AUmax;
+}
+
+/* Sync derived displays without re-render */
+function syncDerivedDisplays(){
+  const map = {
+    // SO/GS
+    SO: state.attrs.SO,
+    GS: state.attrs.GS,
+
+    // Base table
+    "LP_base": calcLPBase(),
+    "LP_final": calcLPBase()+Number(state.base.LP_mod||0),
+    "AU_base": calcAUBase(),
+    "AU_final": calcAUBase()+Number(state.base.AU_mod||0),
+    "AE_base": calcAEBase(),
+    "AE_final": state.base.AE,
+    "MR_base": calcMRBase(),
+    "MR_final": state.base.MR,
+    "INI_base": calcINIBase(),
+    "INI_final": state.base.INI,
+    "BAT_base": calcBATBase(),
+    "BAT_final": state.base.B_AT,
+    "BPA_base": calcBPABase(),
+    "BPA_final": state.base.B_PA,
+    "BFK_base": calcBFKBase(),
+    "BFK_final": state.base.B_FK,
+
+    // combat reference KPIs
+    "LP_pair": `${state.base.LP_cur}/${state.base.LP_max}`,
+    "AU_pair": `${state.base.AU_cur}/${state.base.AU_max}`,
+  };
+
+  document.querySelectorAll("[data-dval]").forEach(el=>{
+    const k = el.dataset.dval;
+    if(k in map) el.textContent = map[k];
+  });
+
+  // combat finals
+  document.querySelectorAll("[data-cfinal]").forEach(el=>{
+    const [vPath,mPath] = (el.dataset.cfinal||"").split("|");
+    if(!vPath || !mPath) return;
+    const v = Number(getByPath(state, vPath)||0);
+    const m = Number(getByPath(state, mPath)||0);
+    el.textContent = (v+m);
+  });
+}
+
+/* When one data-bind changes, mirror it into other identical inputs (Tabs sync) */
+function mirrorBoundInputs(path, value, except){
+  document.querySelectorAll(`[data-bind="${path}"]`).forEach(el=>{
+    if(el === except) return;
+    if(el.type === "number"){
+      if(isUnset(value)) el.value = "";
+      else el.value = Number(value);
+    }else{
+      el.value = value ?? "";
+    }
+  });
+}
+
+/* ------- Bindings (NO FULL RERENDER) ------- */
+function bindInputs(root){
+  root.querySelectorAll("[data-bind]").forEach(inp=>{
+    const evt = (inp.tagName === "SELECT") ? "change" : "input";
+    inp.addEventListener(evt, ()=>{
+      const path = inp.dataset.bind;
+
+      let val;
+      if(inp.type === "number"){
+        val = (inp.value === "" ? null : Number(inp.value));
+      }else{
+        val = inp.value;
+      }
+      setByPath(state, path, val);
+
+      // Auto-Max Flags: wenn man LP_max/AU_max manuell editiert -> auto aus
+      if(path === "base.LP_max"){ state.base.LP_max_auto = false; }
+      if(path === "base.AU_max"){ state.base.AU_max_auto = false; }
+
+      calcDerivedBase();
+      mirrorBoundInputs(path, val, inp);
+      syncDerivedDisplays();
+      renderKpis();
+      renderHeader();
+      schedulePersist();
+    }, {passive:true});
+  });
+}
+
+function bindChipActions(root){
+  root.querySelectorAll("[data-action]").forEach(el=>{
+    const action = el.dataset.action;
+
+    if(action === "add-chip"){
+      el.addEventListener("click", ()=>{
+        const target = el.dataset.target;
+        const name = prompt("Name eingeben:");
+        if(!name) return;
+        const desc = prompt("Beschreibung (Tooltip) – optional:", "") || "";
+        (state[target] ||= []).push({id:uid(), name:name.trim(), desc:desc});
+        calcDerivedBase();
+        persistState({toast:true});
+        renderPages();
+      });
+    }
+    if(action === "remove-chip"){
+      el.addEventListener("click", (ev)=>{
+        ev.stopPropagation();
+        const target = el.dataset.target;
+        const id = el.dataset.id;
+        state[target] = (state[target]||[]).filter(x=>x.id !== id);
+        persistState({toast:true});
+        renderPages();
+      });
+    }
+    if(action === "edit-chip"){
+      el.addEventListener("click", ()=>{
+        const target = el.dataset.target;
+        const id = el.dataset.id;
+        const item = (state[target]||[]).find(x=>x.id===id);
+        if(!item) return;
+        const newName = prompt("Name:", item.name||"");
+        if(newName === null) return;
+        const newDesc = prompt("Beschreibung (Tooltip):", item.desc||"");
+        if(newDesc === null) return;
+        item.name = (newName||"").trim();
+        item.desc = (newDesc||"").trim();
+        persistState({toast:true});
+        renderPages();
+      });
+    }
+  });
+}
+
+function bindTalentTableActions(root){
+  root.querySelectorAll("[data-action='add-talent']").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const group = btn.dataset.group;
+      const name = prompt("Talentname:");
+      if(!name) return;
+      (state.talents[group] ||= []).push({id:uid(), name:name.trim(), probe:"", be:"", taw:0, notes:""});
+      persistState({toast:true});
+      renderPages();
+    });
+  });
+
+  root.querySelectorAll("table[data-talent-table]").forEach(tbl=>{
+    tbl.addEventListener("input", (e)=>{
+      const tr = e.target.closest("tr[data-id]");
+      if(!tr) return;
+      const id = tr.dataset.id;
+      const group = tbl.dataset.talentTable;
+      const item = (state.talents[group]||[]).find(x=>x.id===id);
+      if(!item) return;
+
+      const field = e.target.dataset.field;
+      if(!field) return;
+      item[field] = (e.target.type === "number") ? Number(e.target.value||0) : e.target.value;
+      schedulePersist();
+    });
+
+    tbl.addEventListener("click", (e)=>{
+      const btn = e.target.closest("button[data-action='talent-remove']");
+      if(!btn) return;
+      const tr = e.target.closest("tr[data-id]");
+      const id = tr.dataset.id;
+      const group = tbl.dataset.talentTable;
+      state.talents[group] = (state.talents[group]||[]).filter(x=>x.id!==id);
+      persistState({toast:true});
+      renderPages();
+    });
+  });
+}
+
+function bindCombatTables(root){
+  root.addEventListener("click", (e)=>{
+    const addW = e.target.closest("[data-action='add-weapon']");
+    if(addW){
+      const kind = addW.dataset.kind;
+      state.weapons ||= [];
+      state.weapons.push({ id:uid(), name:"", typdk:"", tp:"", tpkk:"", ini:0, wm:"", at:0, pa:0, bf:0, notes:"", equipped:false, isRanged:(kind==="ranged") });
+      persistState({toast:true}); renderPages(); return;
+    }
+    const remW = e.target.closest("[data-action='weapon-remove']");
+    if(remW){
+      const tr = e.target.closest("tr[data-id]");
+      state.weapons = (state.weapons||[]).filter(w=>w.id!==tr.dataset.id);
+      persistState({toast:true}); renderPages(); return;
+    }
+    const addA = e.target.closest("[data-action='add-armor']");
+    if(addA){
+      state.armor ||= [];
+      state.armor.push({id:uid(), name:"", rs:0, be:0, notes:"", equipped:false});
+      persistState({toast:true}); renderPages(); return;
+    }
+    const remA = e.target.closest("[data-action='armor-remove']");
+    if(remA){
+      const tr = e.target.closest("tr[data-id]");
+      state.armor = (state.armor||[]).filter(a=>a.id!==tr.dataset.id);
+      persistState({toast:true}); renderPages(); return;
+    }
+  });
+
+  root.addEventListener("input", (e)=>{
+    const wTbl = e.target.closest("table[data-weapon-table]");
+    if(wTbl){
+      const tr = e.target.closest("tr[data-id]");
+      if(!tr) return;
+      const w = (state.weapons||[]).find(x=>x.id===tr.dataset.id);
+      if(!w) return;
+      const field = e.target.dataset.field;
+      const action = e.target.dataset.action;
+      if(action === "weapon-toggle") w[field] = e.target.checked;
+      else if(action === "weapon-edit"){
+        if(field === "isRanged") w.isRanged = (e.target.value === "true");
+        else w[field] = (e.target.type === "number") ? Number(e.target.value||0) : e.target.value;
+      }
+      schedulePersist(); return;
+    }
+
+    const aTbl = e.target.closest("table[data-armor-table]");
+    if(aTbl){
+      const tr = e.target.closest("tr[data-id]");
+      if(!tr) return;
+      const a = (state.armor||[]).find(x=>x.id===tr.dataset.id);
+      if(!a) return;
+      const field = e.target.dataset.field;
+      const action = e.target.dataset.action;
+      if(action === "armor-toggle") a[field] = e.target.checked;
+      else if(action === "armor-edit") a[field] = (e.target.type === "number") ? Number(e.target.value||0) : e.target.value;
+      schedulePersist(); return;
+    }
+  });
+}
+
+function bindInventoryTableActions(root){
+  root.addEventListener("click", (e)=>{
+    const add = e.target.closest("[data-action='add-item']");
+    if(add){
+      state.inventory.items ||= [];
+      state.inventory.items.push({id:uid(), name:"", amount:1, weight:0, notes:""});
+      persistState({toast:true}); renderPages(); return;
+    }
+    const rem = e.target.closest("[data-action='item-remove']");
+    if(rem){
+      const tr = e.target.closest("tr[data-id]");
+      state.inventory.items = (state.inventory.items||[]).filter(x=>x.id!==tr.dataset.id);
+      persistState({toast:true}); renderPages(); return;
+    }
+  });
+
+  root.addEventListener("input", (e)=>{
+    const tbl = e.target.closest("table[data-items-table]");
+    if(!tbl) return;
+    const tr = e.target.closest("tr[data-id]");
+    if(!tr) return;
+    const it = (state.inventory.items||[]).find(x=>x.id===tr.dataset.id);
+    if(!it) return;
+    const field = e.target.dataset.field;
+    it[field] = (e.target.type === "number") ? Number(e.target.value||0) : e.target.value;
+    schedulePersist();
+  });
+}
+
+/* ------- Dice ------- */
+const diceLog = [];
+function rollDice(sides,count,mod){
+  const rolls=[]; let sum=0;
+  for(let i=0;i<count;i++){ const r=Math.floor(Math.random()*sides)+1; rolls.push(r); sum+=r; }
+  return {rolls,total:sum+mod};
+}
+
+/* ------- Export/Import JSON ------- */
+function download(filename, text){
+  const blob = new Blob([text], {type:"application/octet-stream"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function exportJson(){
+  const payload = { version: 2, exportedAt: nowStamp(), heroKey: currentKey, state };
+  download(`${currentKey.replaceAll(" ","_")}_dsa41.json`, JSON.stringify(payload, null, 2));
+}
+function uniqueKey(all, base){
+  let k = (base||"Import").trim() || "Import";
+  if(!all[k]) return k;
+  let i=2;
+  while(all[`${k} (${i})`]) i++;
+  return `${k} (${i})`;
+}
+function importJsonFile(file){
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    try{
+      const obj = JSON.parse(fr.result);
+      if(!obj || !obj.state) throw new Error("Ungültiges JSON");
+      const all = loadAll();
+      const key = uniqueKey(all, obj.heroKey || obj.state?.meta?.heroName || "Import");
+      all[key] = obj.state;
+      all[key].meta.heroName = all[key].meta.heroName || key;
+      saveAll(all);
+      loadHero(key, {toast:true, msg:"JSON importiert"});
+    }catch(e){ alert("Import fehlgeschlagen: " + e.message); }
+  };
+  fr.readAsText(file);
+}
+
+/* ==========================
+   Heldensoftware HTML Import
+   - robust numbers (+ 1, −1)
+   - XHTML/cp1252 safe
+   ========================== */
+async function readFileTextSmart(file){
+  const buf = await file.arrayBuffer();
+  try{ return new TextDecoder("windows-1252").decode(buf); }
+  catch(e){ return new TextDecoder("utf-8").decode(buf); }
+}
+function normText(s){
+  return (s||"").replace(/\u00a0/g," ").replace(/\s+/g," ").trim();
+}
+function txt(el){ return normText(el?.textContent || ""); }
+function parseNum(s){
+  s = normText(s).replace("−","-").replace(",",".");
+  const m = s.match(/[-+]?\d+(\.\d+)?/);
+  return m ? Number(m[0]) : 0;
+}
+
+function importHeldensoftwareFromDoc(doc){
+  const imported = {
+    advantages: [],
+    disadvantages: [],
+    specialSkills: [],
+    combatTechniques: [],
+    talents: { gesellschaft: [], wissen: [], natur: [], handwerk: [], koerper: [], kampf: [] },
+    weapons: [],
+    inventoryItems: []
+  };
+
+  const t = txt(doc.querySelector("title"));
+  if(t) state.meta.heroName = t;
+
+  // Eigenschaften
+  const eigTable = doc.querySelector("table.eigenschaften");
+  if(eigTable){
+    const rows = Array.from(eigTable.querySelectorAll("tr")).slice(1);
+    const map = { "Mut":"MU","Klugheit":"KL","Intuition":"IN","Charisma":"CH","Fingerfertigkeit":"FF","Gewandtheit":"GE","Konstitution":"KO","Körperkraft":"KK","Koerperkraft":"KK","Gewandheit":"GE" };
+    for(const r of rows){
+      const name = txt(r.querySelector("td.name"));
+      const aktuell = txt(r.querySelector("td.aktuell"));
+      if(map[name]) state.attrs[map[name]] = parseNum(aktuell);
+    }
+  }
+
+  // Basiswerte (SO/GS + Mods)
+  const basisTable = doc.querySelector("table.basiswerte");
+  if(basisTable){
+    const rows = Array.from(basisTable.querySelectorAll("tr")).slice(1);
+    for(const r of rows){
+      const name = txt(r.querySelector("td.name"));
+      const mod = txt(r.querySelector("td.modifikator"));
+      const aktuell = txt(r.querySelector("td.aktuell"));
+
+      if(name === "Sozialstatus") state.attrs.SO = parseNum(aktuell);
+      if(name === "Geschwindigkeit") state.attrs.GS = parseNum(aktuell);
+
+      if(name === "Lebensenergie"){
+        state.base.LP_mod = parseNum(mod);
+        const max = parseNum(aktuell);
+        if(max>0){
+          state.base.LP_max = max;
+          state.base.LP_cur = max;
+          state.base.LP_max_auto = false;
+        }
+      }
+      if(name === "Ausdauer"){
+        state.base.AU_mod = parseNum(mod);
+        const max = parseNum(aktuell);
+        if(max>0){
+          state.base.AU_max = max;
+          state.base.AU_cur = max;
+          state.base.AU_max_auto = false;
+        }
+      }
+      if(name === "Astralenergie") state.base.AE_mod = parseNum(mod);
+      if(name === "Magieresistenz"){
+        state.base.MR_mod = parseNum(mod);
+        const v = parseNum(aktuell);
+        if(v>0){
+          state.combatValues.MR = v;
+          state.base.MR = v;
+        }
+      }
+      if(name === "Initiative"){
+        state.base.INI_mod = parseNum(mod);
+        const v = parseNum(aktuell);
+        if(v>0){
+          state.combatValues.INI = v;
+          state.base.INI = v;
+        }
+      }
+      if(name === "Attacke"){
+        state.base.B_AT_mod = parseNum(mod);
+        const v = parseNum(aktuell);
+        if(v>0){
+          state.combatValues.AT = v; // WICHTIG: AT übernehmen
+          state.base.B_AT = v;
+        }
+      }
+      if(name === "Parade"){
+        state.base.B_PA_mod = parseNum(mod);
+        const v = parseNum(aktuell);
+        if(v>0){
+          state.combatValues.PA = v; // WICHTIG: PA übernehmen
+          state.base.B_PA = v;
+        }
+      }
+      if(name === "Fernkampf"){
+        state.base.B_FK_mod = parseNum(mod);
+        const v = parseNum(aktuell);
+        if(v>0){
+          state.combatValues.FK = v;
+          state.base.B_FK = v;
+        }
+      }
+    }
+  }
+
+  // Vorteile/Nachteile
+  const vtab = doc.querySelector("table.vorteile");
+  if(vtab){
+    const rows = Array.from(vtab.querySelectorAll("tr")).slice(1);
+    for(const r of rows){
+      const tds = Array.from(r.querySelectorAll("td.name"));
+      const adv = txt(tds[0]);
+      const dis = txt(tds[1]);
+      if(adv && adv !== "&nbsp;") imported.advantages.push({id:uid(), name:adv, desc:""});
+      if(dis && dis !== "&nbsp;") imported.disadvantages.push({id:uid(), name:dis, desc:""});
+    }
+  }
+
+  // Sonderfertigkeiten
+  const sftables = Array.from(doc.querySelectorAll("table.sonderfertigkeiten"));
+  const sfSet = new Set();
+  for(const table of sftables){
+    const tds = Array.from(table.querySelectorAll("td.name"));
+    for(const td of tds){
+      const name = txt(td);
+      if(!name || name === "&nbsp;") continue;
+      sfSet.add(name);
+    }
+  }
+  for(const name of sfSet){
+    imported.specialSkills.push({id:uid(), name, desc:""});
+  }
+
+  // Talente + Kampftechniken
+  const tTables = Array.from(doc.querySelectorAll("table.talentgruppe"));
+  const detectGroup = (head) => {
+    const h = head.toLowerCase();
+    if(h.includes("gesellschaft")) return "gesellschaft";
+    if(h.includes("wissen")) return "wissen";
+    if(h.includes("natur")) return "natur";
+    if(h.includes("handwerk")) return "handwerk";
+    if(h.includes("körper") || h.includes("koerper")) return "koerper";
+    if(h.includes("kampf-talente") || h.includes("kampftalente")) return "kampf";
+    // Sprachen/Schriften werden hier in Wissen einsortiert (damit "nichts fehlt")
+    if(h.includes("sprachen") || h.includes("schriften")) return "wissen";
+    return null;
+  };
+
+  for(const tt of tTables){
+    const head = txt(tt.querySelector("th.name"));
+    if(!head) continue;
+
+    if(head.toLowerCase().includes("kampftechniken")){
+      const rows = Array.from(tt.querySelectorAll("tr")).slice(1);
+      for(const r of rows){
+        const name = txt(r.querySelector("td.name"));
+        if(!name || name === "&nbsp;") continue;
+
+        const be  = txt(r.querySelector("td.be"));
+        const at  = txt(r.querySelector("td.at"));
+        const pa  = txt(r.querySelector("td.pa"));
+        const taw = txt(r.querySelector("td.taw"));
+
+        const descParts = [];
+        if(be)  descParts.push(`BE ${be}`);
+        if(at)  descParts.push(`AT ${at}`);
+        if(pa)  descParts.push(`PA ${pa}`);
+        if(taw) descParts.push(`TaW ${taw}`);
+        const desc = descParts.join(" · ");
+
+        imported.combatTechniques.push({id:uid(), name, desc});
+        imported.talents.kampf.push({id:uid(), name, probe:"", be:be||"", taw:parseNum(taw), notes: desc ? `Kampftechnik: ${desc}` : "Kampftechnik"});
+      }
+      continue;
+    }
+
+    const g = detectGroup(head);
+    if(!g) continue;
+
+    const rows = Array.from(tt.querySelectorAll("tr")).slice(1);
+    for(const r of rows){
+      const name = txt(r.querySelector("td.name"));
+      if(!name || name === "&nbsp;") continue;
+      const probe = txt(r.querySelector("td.probe"));
+      const be = txt(r.querySelector("td.be"));
+      const taw = txt(r.querySelector("td.taw"));
+      imported.talents[g].push({id:uid(), name, probe, be, taw:parseNum(taw), notes:""});
+    }
+  }
+
+  // Nahkampfwaffen
+  const nk = doc.querySelector("table.nkwaffen");
+  if(nk){
+    const rows = Array.from(nk.querySelectorAll("tr")).slice(1);
+    for(const r of rows){
+      const name = txt(r.querySelector("td.name"));
+      if(!name || name === "&nbsp;") continue;
+      const typbe = txt(r.querySelector("td.typbe"));
+      const dk = txt(r.querySelector("td.dk"));
+      const tp = txt(r.querySelector("td.tp"));
+      const tpkk = txt(r.querySelector("td.tpkk"));
+      const ini = txt(r.querySelector("td.ini"));
+      const wm = txt(r.querySelector("td.wm"));
+      const at = txt(r.querySelector("td.at"));
+      const pa = txt(r.querySelector("td.pa"));
+      const bf = txt(r.querySelector("td.aktbf")) || txt(r.querySelector("td.minbf"));
+      imported.weapons.push({
+        id:uid(), name,
+        typdk: `${typbe}${dk?(" / "+dk):""}`.trim(),
+        tp, tpkk,
+        ini: parseNum(ini),
+        wm,
+        at: parseNum(at),
+        pa: parseNum(pa),
+        bf: parseNum(bf),
+        notes:"",
+        equipped:false,
+        isRanged:false
+      });
+    }
+  }
+
+  // Inventar (2 Items pro Zeile)
+  const inv = doc.querySelector("table.inventar.gitternetz") || doc.querySelector("table.inventar");
+  if(inv){
+    const rows = Array.from(inv.querySelectorAll("tr")).slice(1);
+    for(const r of rows){
+      const tds = Array.from(r.querySelectorAll("td"));
+      for(let i=0;i<tds.length;i+=3){
+        const name = txt(tds[i]);
+        const amount = txt(tds[i+1]);
+        const weight = txt(tds[i+2]);
+        if(!name || name === "&nbsp;") continue;
+        imported.inventoryItems.push({id:uid(), name, amount:parseNum(amount)||1, weight:parseNum(weight)||0, notes:""});
+      }
+    }
+  }
+
+  // Apply (nur wenn Daten vorhanden)
+  if(imported.advantages.length) state.advantages = imported.advantages;
+  if(imported.disadvantages.length) state.disadvantages = imported.disadvantages;
+  if(imported.specialSkills.length) state.specialSkills = imported.specialSkills;
+  if(imported.combatTechniques.length) state.combatTechniques = imported.combatTechniques;
+
+  for(const k of Object.keys(imported.talents)){
+    if(imported.talents[k].length) state.talents[k] = imported.talents[k];
+  }
+
+  if(imported.weapons.length) state.weapons = imported.weapons;
+  if(imported.inventoryItems.length) state.inventory.items = imported.inventoryItems;
+
+  calcDerivedBase();
+  persistState({toast:true});
+}
+
+async function importHeldensoftwareHtml(file){
+  try{
+    const raw = await readFileTextSmart(file);
+    const doc = new DOMParser().parseFromString(raw, "text/html");
+    importHeldensoftwareFromDoc(doc);
+    renderHeader();
+    renderKpis();
+    renderPages();
+    setTab(activeTab);
+    showToast("Heldensoftware importiert");
+  }catch(e){
+    alert("Heldensoftware-Import fehlgeschlagen: " + e.message);
+  }
+}
+
+/* ------- Hero switching / select ------- */
+function refreshHeroSelect(){
+  const sel = document.getElementById("heroSelect");
+  const keys = listHeroKeys();
+  if(!keys.length){
+    const all = {};
+    all["Unbenannt"] = emptyState("Unbenannt");
+    saveAll(all);
+  }
+  const keys2 = listHeroKeys();
+  const cur = currentKey;
+
+  // Keep selection stable
+  sel.innerHTML = keys2.map(k=>`<option value="${escapeAttr(k)}"${k===cur?" selected":""}>${escapeHtml(k)}</option>`).join("");
+}
+
+function loadHero(key, {toast=false, msg=""}={}){
+  const all = loadAll();
+  if(!all[key]) all[key] = emptyState(key);
+  saveAll(all);
+
+  currentKey = key;
+  state = all[key];
+  setCurrentHeroKey(currentKey);
+
+  calcDerivedBase();
+  renderHeader();
+  renderKpis();
+  renderPages();
+  setTab(activeTab);
+  refreshHeroSelect();
+  if(toast) showToast(msg || "Held geladen");
+}
+
+/* ------- Global UI events ------- */
+function initEvents(){
+  document.getElementById("fieldName").addEventListener("input", (e)=>{
+    state.meta.heroName = e.target.value;
+    schedulePersist();
+  }, {passive:true});
+
+  document.getElementById("fieldTitle").addEventListener("input", (e)=>{
+    state.meta.title = e.target.value;
+    schedulePersist();
+  }, {passive:true});
+
+  document.getElementById("portraitUpload").addEventListener("change", (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    const fr = new FileReader();
+    fr.onload = ()=>{
+      state.meta.portraitDataUrl = String(fr.result||"");
+      persistState({toast:true});
+      renderHeader();
+    };
+    fr.readAsDataURL(f);
+  });
+
+  // LP/AU sidebar fields: mark auto off for max when edited
+  document.getElementById("fieldLPcur").addEventListener("input", (e)=>{
+    state.base.LP_cur = Number(e.target.value||0);
+    calcDerivedBase();
+    renderKpis();
+    syncDerivedDisplays();
+    schedulePersist();
+  }, {passive:true});
+  document.getElementById("fieldLPmax").addEventListener("input", (e)=>{
+    state.base.LP_max = Number(e.target.value||0);
+    state.base.LP_max_auto = false;
+    calcDerivedBase();
+    renderKpis();
+    syncDerivedDisplays();
+    schedulePersist();
+  }, {passive:true});
+  document.getElementById("fieldAUcur").addEventListener("input", (e)=>{
+    state.base.AU_cur = Number(e.target.value||0);
+    calcDerivedBase();
+    renderKpis();
+    syncDerivedDisplays();
+    schedulePersist();
+  }, {passive:true});
+  document.getElementById("fieldAUmax").addEventListener("input", (e)=>{
+    state.base.AU_max = Number(e.target.value||0);
+    state.base.AU_max_auto = false;
+    calcDerivedBase();
+    renderKpis();
+    syncDerivedDisplays();
+    schedulePersist();
+  }, {passive:true});
+
+  document.getElementById("btnRoll").addEventListener("click", ()=>{
+    const sides = Number(document.getElementById("diceSides").value||20);
+    const count = clamp(document.getElementById("diceCount").value, 1, 50);
+    const mod = Number(document.getElementById("diceMod").value||0);
+    const {rolls,total} = rollDice(sides,count,mod);
+    document.getElementById("diceResult").textContent = `${total}  (${rolls.join(", ")}${mod? (mod>0?` +${mod}`:` ${mod}`):""})`;
+    diceLog.unshift(`${nowStamp()} → ${count}W${sides}${mod? (mod>0?`+${mod}`:`${mod}`):""} = ${total} [${rolls.join(", ")}]`);
+    while(diceLog.length>10) diceLog.pop();
+    document.getElementById("diceLog").textContent = diceLog.join("\n");
+  });
+
+  document.getElementById("btnSaveAs").addEventListener("click", ()=>{
+    const all = loadAll();
+    const name = prompt("Unter welchem Slot-Namen speichern?", state.meta.heroName || currentKey);
+    if(!name) return;
+    const newKey = uniqueKey(all, name.trim());
+    const cloned = JSON.parse(JSON.stringify(state));
+    cloned.meta.heroName = cloned.meta.heroName || newKey;
+    all[newKey] = cloned;
+    saveAll(all);
+    loadHero(newKey, {toast:true, msg:"Gespeichert unter neuem Namen"});
+  });
+
+  document.getElementById("btnNew").addEventListener("click", ()=>{
+    const all = loadAll();
+    const name = prompt("Slot-Name für neuen Helden?");
+    if(!name) return;
+    const key = uniqueKey(all, name.trim());
+    all[key] = emptyState(key);
+    all[key].meta.heroName = key;
+    saveAll(all);
+    loadHero(key, {toast:true, msg:"Neuer Held erstellt"});
+  });
+
+  document.getElementById("btnReset").addEventListener("click", ()=>{
+    if(!confirm(`Diesen Helden wirklich löschen?\n\n${currentKey}`)) return;
+    const all = loadAll();
+    delete all[currentKey];
+    saveAll(all);
+    const keys = listHeroKeys();
+    const next = keys[0] || "Unbenannt";
+    loadHero(next, {toast:true, msg:"Held gelöscht"});
+  });
+
+  document.getElementById("btnExport").addEventListener("click", exportJson);
+
+  document.getElementById("fileImportJson").addEventListener("change", (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    importJsonFile(f);
+    e.target.value = "";
+  });
+
+  document.getElementById("fileImportHsHtml").addEventListener("change", (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    importHeldensoftwareHtml(f);
+    e.target.value = "";
+  });
+
+  document.getElementById("heroSelect").addEventListener("change", (e)=>{
+    const key = e.target.value;
+    if(key && key !== currentKey){
+      loadHero(key, {toast:true, msg:"Held gewechselt"});
+    }
+  });
+}
+
+/* ------- Init ------- */
+function init(){
+  state.meta.heroName = state.meta.heroName || currentKey;
+
+  calcDerivedBase();
+  buildTabs();
+  renderHeader();
+  renderKpis();
+  renderPages();
+  setTab(activeTab);
+
+  refreshHeroSelect();
+  initEvents();
+
+  showToast("Bereit");
+}
+
+/* simple runtime error hint */
+window.addEventListener("error", (e)=>{
+  console.error(e.error || e.message);
+  showToast("Fehler: " + (e.message || "Unbekannt"));
+});
+
+init();
+</script>
+</body>
+</html>
